@@ -1,6 +1,6 @@
 #include <mpi.h>
 
-#include "commandlineconfig.hpp"
+#include "configReader.hpp"
 #include "finitediffheatsolver.hpp"
 #include "fixedconditions.hpp"
 #include "simulation.hpp"
@@ -12,7 +12,7 @@ int main( int argc, char* argv[] )
 	MPI_Init( &argc, &argv );
 
 	// Construct the command-line arguments parser
-	CommandLineConfig config( argc, argv );
+	ConfigReader config( argc, argv );
 	// construct the heat equation solver
 	FinitediffHeatSolver heat_solver( config );
 	// construct the initial condition setter
