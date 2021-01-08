@@ -33,5 +33,19 @@ public:
 	 * @return the step in space to use
 	 */
 	virtual std::array<double, 2> delta_space() const = 0;
-	
+  
+  /** Access the initial conditions input filename
+   * @return the initial conditions input filename
+   */
+  virtual std::string input_filename() const = 0;
+
+  /** Access the output filename
+   * @return the output filename
+   */
+  virtual std::string output_filename() const = 0;
+
+  /** Access the backup interval
+   * @return the backup interval
+   */
+  virtual int backup_interval() const = 0;
 };

@@ -20,7 +20,16 @@ class ConfigReader:
 	
 	/// space difference between two consecutive points
 	std::array<double, 2> m_delta_space;
-	
+
+  /// name of the input file used for inital conditions
+  std::string m_input_filename;
+
+  /// name of the output file used for backups
+  std::string m_output_filename;
+
+  /// interval between backups
+  int m_backup_interval;
+
 public:
 	/** Construct a new ConfigReader
 	 * @param argc the number of command-line arguments
@@ -42,4 +51,13 @@ public:
 	
 	// see overridden function
 	std::array<double, 2> delta_space() const override { return m_delta_space; }
+
+  // see overridden function
+  std::string input_filename() const override { return m_input_filename; }
+
+  // see overridden function
+  std::string output_filename() const override { return m_output_filename; }
+  
+  // see overridden function
+  int backup_interval() const override { return m_backup_interval; }
 };
