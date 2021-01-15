@@ -38,6 +38,9 @@ private:
 	/// The distance between 2 grid points in m
 	std::array<double, 2> m_delta_space;
 
+  /// The reducted value of the field
+  double m_reductedValue;
+
 	View m_full_view;
 
 	View m_noghost_view;
@@ -81,6 +84,10 @@ public:
 	/** Swaps this field with another
 	 */
 	void swap( Distributed2DField& );
+
+  /** Set the reducted value of the field
+   */
+  void set_reductedValue(double value);
 
 	/** Provide a modifiable view of the data including ghosts
 	 * @return a modifiable view of the data including ghosts
@@ -180,7 +187,12 @@ public:
 	 */
 	const CartesianDistribution2D& distribution() const { return m_distribution; }
 
-	/** Synchronize the ghosts with neighbours
+	/** Access the reductedValue of this field
+	 * @return the reductedValue of this field
+	 */
+  const double reductedValue() const { return m_reductedValue;}
+	
+  /** Synchronize the ghosts with neighbours
 	 */
 	void sync_ghosts();
 

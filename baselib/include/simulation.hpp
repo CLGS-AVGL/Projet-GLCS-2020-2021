@@ -9,6 +9,7 @@
 #include "initialconditionner.hpp"
 #include "simulationobserver.hpp"
 #include "timestep.hpp"
+#include "fieldreductor.hpp"
 
 class Simulation
 {
@@ -21,6 +22,9 @@ private:
 	
 	/// The initial-conditions to apply
 	const InitialConditionner& m_init;
+
+  /// The reductor to apply
+  const FieldReductor& m_reduc;
 
 	/// The MPI communicator to use
 	MPI_Comm m_comm;
@@ -35,7 +39,8 @@ public:
 	 * @param time_step the time-step operator to apply
 	 * @param init the initial-conditions to apply
 	 */
-	Simulation( MPI_Comm comm, const Configuration& config, const TimeStep& time_step, const InitialConditionner& init );
+	Simulation( MPI_Comm comm, const Configuration& config, const TimeStep& time_step, 
+      const InitialConditionner& init, const FieldReductor& reduc);
 
 	/** Run the simulation for the number of time-steps specified in the config
 	 */

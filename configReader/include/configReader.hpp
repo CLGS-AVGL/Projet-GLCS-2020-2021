@@ -28,7 +28,7 @@ class ConfigReader:
   std::string m_output_filename;
 
   /// interval between backups
-  int m_backup_interval;
+  int m_backup_interval; 
 
 public:
 	/** Construct a new ConfigReader

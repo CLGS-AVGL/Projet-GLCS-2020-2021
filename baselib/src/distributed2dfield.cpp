@@ -132,6 +132,11 @@ void Distributed2DField::sync_ghosts()
 			m_distribution.communicator(), MPI_STATUS_IGNORE );
 }
 
+void Distributed2DField::set_reductedValue(double value)
+{
+  this->m_reductedValue = value;
+}
+
 void Distributed2DField::swap( Distributed2DField& other )
 {
 	Distributed2DField tmp = std::move( other );

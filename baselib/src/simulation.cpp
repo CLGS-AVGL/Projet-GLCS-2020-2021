@@ -1,10 +1,12 @@
 // the implemented class (last)
 #include "simulation.hpp"
 
-Simulation::Simulation( MPI_Comm comm, const Configuration& config, const TimeStep& time_step, const InitialConditionner& init )
+Simulation::Simulation( MPI_Comm comm, const Configuration& config, const TimeStep& time_step, 
+    const InitialConditionner& init , const FieldReductor& reduc)
 	: m_config( config )
 	, m_time_step( time_step )
-	, m_init( init)
+	, m_init( init )
+  , m_reduc( reduc )
 	, m_comm( comm )
 {
 }
@@ -27,6 +29,8 @@ void Simulation::run() const
 
 	// the main (time) iteration
 	for ( int ii = 0; ii < m_config.nb_iter(); ++ii ) {
+    // apply the reduction to the current field
+    m_reduc.field_reduction(current);
 
 		// compute the temperature at the next iteration
 		m_time_step.iter( current, next );

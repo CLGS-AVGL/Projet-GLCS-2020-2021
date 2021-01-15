@@ -12,8 +12,12 @@ using std::stoi;
 using std::stod;
 using std::cout;
 
-ConfigReader::ConfigReader( const int argc, const char* const argv[] )
+ConfigReader::ConfigReader( const int argc, const char* const argv[])
 {
+  // get the processus rank
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
   // get a short name for the boost name_space
   namespace po = boost::program_options;
   
@@ -22,23 +26,36 @@ ConfigReader::ConfigReader( const int argc, const char* const argv[] )
   
   // add the opttions description
   options.add_options()
-  ("N-iter,n",          po::value<int>(),         "number of iterations")
-  ("height,h",          po::value<int>(),         "height of the domain")
-  ("width,w",           po::value<int>(),         "width of the domain")
-  ("process-height,ph", po::value<int>(),         "number of process in the height")
-  ("process-width,pw",  po::value<int>(),         "number of process in the width")
-  ("delta-t,dt",        po::value<double>(),      "time elapsed between two iterations")
-  ("delta-x,dx",        po::value<double>(),      "distance on the x axis between two points of the domain")
-  ("delta-y,dy",        po::value<double>(),      "distance on the y axis between two points of the domain")
-  ("input-file",        po::value<std::string>(), "input-file name used for initial conditions")
-  ("output-file",       po::value<std::string>(), "output-file used to save results")
-  ("backup-interval",   po::value<int>(),         "interval between backups")
+  ("N-iter",          po::value<int>(),         "number of iterations (default 10)")
+  ("height",          po::value<int>(),         "height of the domain (default 4)")
+  ("width",           po::value<int>(),         "width of the domain (default 8)")
+  ("process-height", po::value<int>(),         "number of process in the height (default 2)")
+  ("process-width",  po::value<int>(),         "number of process in the width (default 2)")
+  ("delta-t",        po::value<double>(),      "time elapsed between two iterations (default 1)")
+  ("delta-x",        po::value<double>(),      "distance on the x axis between two points of the domain (default 1)")
+  ("delta-y",        po::value<double>(),      "distance on the y axis between two points of the domain (default 1)")
+  ("input-file",        po::value<std::string>(), "input-file name used for initial conditions (no default value)")
+  ("output-file",       po::value<std::string>(), "output-file used to save results (no default value)")
+  ("backup-interval",   po::value<int>(),         "interval between backups (default 1)")
+  ("help", "produce help message")
   ("print-args,pa", "print the command-line arguments");
 
   // create the map that store the value of the options
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, options), vm);
   po::notify(vm);
+
+  // help message
+  if(vm.count("help")){
+    // if the rank is 0 print the options
+    if (rank == 0){
+      std::cout << options << std::endl;
+    }
+
+    // close the program
+    MPI_Finalize();
+    exit(0);
+  }
 
   // set the parameters
   m_nb_iter = (vm.count("N-iter")) ? vm["N-iter"].as<int>() : 10;
@@ -53,7 +70,7 @@ ConfigReader::ConfigReader( const int argc, const char* const argv[] )
   if (vm.count("output-file")) m_output_filename = vm["output-file"].as<std::string>();
   m_backup_interval = (vm.count("backup-interval")) ? vm["backup-interval"].as<int>() : 1;
 
-  if (vm.count("print-args")){
+  if (vm.count("print-args") && rank == 0){
     std::cout << "************** Configutation **************" << std::endl;
     std::cout << "m_nb_iter = "          <<  m_nb_iter         << std::endl; 
 	  std::cout << "m_global_shape[DY] = " << m_global_shape[DY] << std::endl; 
@@ -63,9 +80,10 @@ ConfigReader::ConfigReader( const int argc, const char* const argv[] )
 	  std::cout << "m_delta_t = "          << m_delta_t          << std::endl;
 	  std::cout << "m_delta_space[DY] = "  << m_delta_space[DY]  << std::endl;
 	  std::cout << "m_delta_space[DX] = "  << m_delta_space[DX]  << std::endl;
-    std::cout << "m_input_filename = "   << m_input_filename   << std::endl;
-    std::cout << "m_output_filename = "  << m_output_filename  << std::endl;
+    if (vm.count("input-file"))   std::cout << "m_input_filename = "   << m_input_filename   << std::endl;
+    if (vm.count("output-file")) std::cout << "m_output_filename = "  << m_output_filename  << std::endl;
     std::cout << "m_backup_interval = "  << m_backup_interval  << std::endl;
+    std::cout << "*******************************************" << std::endl;
     std::cout << std::endl; 
   }
 }

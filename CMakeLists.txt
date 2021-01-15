@@ -8,6 +8,7 @@ find_package(Boost 1.56 REQUIRED COMPONENTS program_options)
 add_subdirectory("vendor/mdspan/" "mdspan" EXCLUDE_FROM_ALL)
 
 add_subdirectory(baselib)
+add_subdirectory(heatReductor)
 add_subdirectory(heatlib)
 add_subdirectory(simpleui)
 add_subdirectory(configReader)
@@ -18,6 +19,7 @@ add_executable(simpleheat
 target_link_libraries(simpleheat PRIVATE
 		GLCS2020_project::baselib
 		GLCS2020_project::heatlib
+		GLCS2020_project::heatReductor
 		GLCS2020_project::simpleui
     GLCS2020_project::configReader
 		MPI::MPI_CXX

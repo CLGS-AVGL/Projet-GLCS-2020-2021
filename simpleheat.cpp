@@ -5,20 +5,23 @@
 #include "fixedconditions.hpp"
 #include "simulation.hpp"
 #include "screenprinter.hpp"
+#include "heatreductor.hpp"
 
 int main( int argc, char* argv[] )
 {
 	// initialize the MPI library
 	MPI_Init( &argc, &argv );
 
-	// Construct the command-line arguments parser
-	ConfigReader config( argc, argv );
+	// Construct the command-line arguments parser	
+  ConfigReader config( argc, argv );
 	// construct the heat equation solver
 	FinitediffHeatSolver heat_solver( config );
 	// construct the initial condition setter
 	FixedConditions init;
+  // construct the heat reductor
+  HeatReductor reduc;
 	// construct the simulation runner
-	Simulation simulation( MPI_COMM_WORLD, config, heat_solver, init );
+	Simulation simulation( MPI_COMM_WORLD, config, heat_solver, init, reduc );
 	// Add a printer to screen to observe the simulation
 	ScreenPrinter printer;
 	simulation.observe( printer );
