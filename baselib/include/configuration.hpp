@@ -48,4 +48,9 @@ public:
    * @return the backup interval
    */
   virtual int backup_interval() const = 0;
+
+  /** Access the backup interval
+   * @return the backup interval
+   */
+  virtual int mean_backup_interval() const = 0;
 };

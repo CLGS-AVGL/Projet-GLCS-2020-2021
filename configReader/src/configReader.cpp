@@ -1,8 +1,14 @@
 #include "configReader.hpp"
 #include <string>
 
-#define exist(filename, buffer) (stat(filename, buffer) == 0)
+// test if a file exist 
+bool exist(const char *filename, struct stat *buffer)
+{
+  return stat(filename, buffer) == 0;
+}
 
+// print an error message if the rank of the processus is equal to zero
+// and set error_code to 1
 void alert(const std::string &to_print, int &error_code, const int rank)
 {
   error_code = 1;
@@ -10,6 +16,7 @@ void alert(const std::string &to_print, int &error_code, const int rank)
     std::cerr << std::endl << "Fatal-error: " << to_print << std::endl << std::endl;
 }
 
+// initialize the opition description
 void ConfigReader::init_options(po::options_description &options) const
 {
   // add the opttions description
@@ -37,11 +44,15 @@ void ConfigReader::init_options(po::options_description &options) const
   ("output-file",       po::value<std::string>(),
    "output-file used to save results (no default value)")
   ("backup-interval",   po::value<int>()->default_value(1),   
-   "interval between backups (default 1)")
+   "interval between backups of the full field (default 1)")
+  ("mean-backup-interval",   po::value<int>()->default_value(1),   
+   "interval between backups of the mean value of the field (default 1)")
   ("help", "produce help message")
   ("print-args,pa", "print the command-line arguments");
 }
 
+// print the option description if the rank of the processus is 0 and if the help argument
+// is given to the program, and then quit the program
 void ConfigReader::print_help(const po::variables_map &vm, 
     const po::options_description &options, const int rank) const
 {
@@ -57,6 +68,8 @@ void ConfigReader::print_help(const po::variables_map &vm,
   }
 }
 
+// parse the command line and fill the map of variables, if a string is detected without 
+// an argument prefix, this string will be the configuration file 
 void ConfigReader::parse_arguments(po::variables_map &vm, const po::options_description &options, 
     const int argc, const char* const argv[]) const
 {
@@ -67,6 +80,7 @@ void ConfigReader::parse_arguments(po::variables_map &vm, const po::options_desc
   po::notify(vm);
 }
 
+// set the member variables with the arguments given in the command line
 void ConfigReader::set_commmand_line(const po::variables_map &vm, const int rank)
 {
   // set the parameters
@@ -83,8 +97,10 @@ void ConfigReader::set_commmand_line(const po::variables_map &vm, const int rank
   if (vm.count("output-file")) 
     m_output_filename = vm["output-file"].as<std::string>();
   m_backup_interval =vm["backup-interval"].as<int>();
+  m_mean_backup_interval =vm["mean-backup-interval"].as<int>();
 }
 
+// set the member variables with the arguments given in the configuration file
 void ConfigReader::set_config_file(const std::string &filename, const int rank)
 {
   // inform the user
@@ -110,7 +126,7 @@ void ConfigReader::set_config_file(const std::string &filename, const int rank)
 	m_delta_t = tree.get("delta-t", 0.125); 
 	m_delta_space[DY] = tree.get("delta-y", 1); 
 	m_delta_space[DX] = tree.get("delta-x", 1); 
-  
+
   boost::optional<std::string> in_opt = tree.get_optional<std::string>("input-file");
   if (in_opt) 
     m_input_filename = (*in_opt);
@@ -120,8 +136,10 @@ void ConfigReader::set_config_file(const std::string &filename, const int rank)
     m_output_filename = (*out_opt);
   
   m_backup_interval = tree.get("backup-interval", 1);
+  m_mean_backup_interval = tree.get("mean-backup-interval", 1);
 }
 
+// the processus of rank 0 print the current configuration on the standard output
 void ConfigReader::print_config(const po::variables_map &vm, const int rank) const
 {
   if (vm.count("print-args") && rank == 0){
@@ -137,12 +155,14 @@ void ConfigReader::print_config(const po::variables_map &vm, const int rank) con
     if (!m_input_filename.empty())   std::cout << "m_input_filename = "   << m_input_filename   << std::endl;
     if (!m_output_filename.empty()) std::cout << "m_output_filename = "  << m_output_filename  << std::endl;
     std::cout << "m_backup_interval = "  << m_backup_interval  << std::endl;
+    std::cout << "m_mean_backup_interval = "  << m_mean_backup_interval  << std::endl;
     std::cout << "*******************************************" << std::endl;
     std::cout << std::endl; 
   }
 }
 
-void ConfigReader::check_parameters(const int rank, const int size) const
+// check if the configuration is well defined
+void ConfigReader::check_config(const int rank, const int size) const
 {
   int error_code = 0;
 
@@ -175,7 +195,11 @@ void ConfigReader::check_parameters(const int rank, const int size) const
     alert("The distance between points on the x axis must be positive, is " + std::to_string(m_delta_space[DX]), error_code, rank);
 
   if (m_backup_interval < 1)
-    alert("The backup interval must be superior or equal to 1, is " + std::to_string(m_backup_interval), error_code, rank); 
+    alert("The full backup interval must be superior or equal to 1, is " + std::to_string(m_backup_interval), error_code, rank); 
+  
+  if (m_mean_backup_interval < 1)
+    alert("The mean backup interval must be superior or equal to 1, is " + std::to_string(m_mean_backup_interval), error_code, rank); 
+
 
   struct stat buffer;
   
@@ -192,6 +216,7 @@ void ConfigReader::check_parameters(const int rank, const int size) const
 
 }
 
+// initialize the configuration from the command line or from the configuration file
 ConfigReader::ConfigReader( const int argc, const char* const argv[])
 {
   // get the processus rank
@@ -226,5 +251,5 @@ ConfigReader::ConfigReader( const int argc, const char* const argv[])
   print_config(vm, rank);
 
   // check parameters
-  check_parameters(rank, size);
+  check_config(rank, size);
 }

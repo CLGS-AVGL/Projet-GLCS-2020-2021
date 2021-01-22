@@ -49,8 +49,11 @@ class ConfigReader:
   /// name of the output file used for backups
   std::string m_output_filename;
 
-  /// interval between backups
-  int m_backup_interval; 
+  /// interval between full backups
+  int m_backup_interval;
+
+  /// interval between mean backups
+  int m_mean_backup_interval; 
  
   /** init the boost options
    *  @param options description of the options 
@@ -96,10 +99,11 @@ class ConfigReader:
    *  @param rank the rank of the processus
    *  @param size of the communicator
    */
-  void check_parameters(const int rank, const int size) const;
+  void check_config(const int rank, const int size) const;
 
 public:
-	/** Construct a new ConfigReader
+	/** Construct a new ConfigReader and intialize the configuration from the command line or 
+   * from the configuration file
 	 * @param argc the number of command-line arguments
 	 * @param argv the values of command-line arguments
 	 */
@@ -128,4 +132,7 @@ public:
   
   // see overridden function
   int backup_interval() const override { return m_backup_interval; }
+
+  // see overridden function
+  int mean_backup_interval() const override { return m_mean_backup_interval; }
 };
