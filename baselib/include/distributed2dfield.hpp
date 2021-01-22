@@ -39,7 +39,7 @@ private:
 	std::array<double, 2> m_delta_space;
 
   /// The reducted value of the field
-  double m_reductedValue;
+  double m_reducedValue;
 
 	View m_full_view;
 
@@ -85,9 +85,9 @@ public:
 	 */
 	void swap( Distributed2DField& );
 
-  /** Set the reducted value of the field
+  /** Set the reduced value of the field
    */
-  void set_reductedValue(double value);
+  void set_reducedValue(double value);
 
 	/** Provide a modifiable view of the data including ghosts
 	 * @return a modifiable view of the data including ghosts
@@ -187,10 +187,10 @@ public:
 	 */
 	const CartesianDistribution2D& distribution() const { return m_distribution; }
 
-	/** Access the reductedValue of this field
-	 * @return the reductedValue of this field
+	/** Access the reducedValue of this field
+	 * @return the reducedValue of this field
 	 */
-  const double reductedValue() const { return m_reductedValue;}
+  const double reducedValue() const { return m_reducedValue;}
 	
   /** Synchronize the ghosts with neighbours
 	 */

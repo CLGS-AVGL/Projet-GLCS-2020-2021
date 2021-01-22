@@ -17,6 +17,7 @@ Distributed2DField::Distributed2DField( MPI_Comm comm, Shape2D dist_shape, Shape
 	: m_distribution( comm, dist_shape )
 	, m_data( 0 )
 	, m_delta_space(delta_space)
+  , m_reducedValue(0.0)
 {
 	for ( int ii = 0; ii < m_data.size(); ++ii ) {
 		m_data[ii] = ii;
@@ -132,9 +133,9 @@ void Distributed2DField::sync_ghosts()
 			m_distribution.communicator(), MPI_STATUS_IGNORE );
 }
 
-void Distributed2DField::set_reductedValue(double value)
+void Distributed2DField::set_reducedValue(double value)
 {
-  this->m_reductedValue = value;
+  this->m_reducedValue = value;
 }
 
 void Distributed2DField::swap( Distributed2DField& other )

@@ -1,7 +1,29 @@
 #pragma once
 
+#include <cstdlib>
+#include <sys/stat.h>
+#include <iostream>
+#include <string>
+#include <boost/optional/optional.hpp>
+#include <boost/program_options.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/variables_map.hpp>
+#include <boost/range/end.hpp>
+
 // library headers
 #include <configuration.hpp>
+
+using std::cerr;
+using std::endl;
+using std::exit;
+using std::stoi;
+using std::stod;
+using std::cout;
+
+namespace po = boost::program_options;
+namespace pt = boost::property_tree;
 
 class ConfigReader: 
    public Configuration
@@ -29,6 +51,52 @@ class ConfigReader:
 
   /// interval between backups
   int m_backup_interval; 
+ 
+  /** init the boost options
+   *  @param options description of the options 
+   */
+  void init_options(po::options_description &options) const;
+
+  /** print the help message if necessary
+   *  @param vm the map of variables 
+   *  @param options the options description
+   *  @param rank the rank of the processus
+   */
+  void print_help(const po::variables_map &vm, const po::options_description &options, const int rank) const;
+ 
+  /** print the help message if necessary
+   *  @param vm the map of variables to fill 
+   *  @param options the options description
+   *  @param argc the number of arguments given to the program
+   *  @param argv the arguments given to the program
+   */
+  void parse_arguments(po::variables_map &vm, const po::options_description &options, const int argc,
+      const char* const argv[]) const;
+
+  /** set the parameters from the command line
+   *  @param vm the map of variables 
+   *  @param rank the rank of the processus
+   */
+  void set_commmand_line(const po::variables_map &vm, const int rank);
+  
+  /** set the parameters from the config file
+   *  @param std::string name of the config file
+   *  @param rank the rank of the processus
+   */
+  void set_config_file(const std::string &filename, const int rank);
+
+  /** print the config file if necessary
+   *  @param vm the map of variables 
+   *  @param rank the rank of the processus
+   */
+  void print_config(const po::variables_map &vm, const int rank) const;
+ 
+  /** check if the parameters are correct
+   *  @param vm the map of variables 
+   *  @param rank the rank of the processus
+   *  @param size of the communicator
+   */
+  void check_parameters(const int rank, const int size) const;
 
 public:
 	/** Construct a new ConfigReader
