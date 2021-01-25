@@ -1,9 +1,14 @@
 #pragma once
 
+#include <mpi.h>
+#include <hdf5.h>
+#include <hdf5_hl.h>
+
+
 // library headers
 #include <initialconditionner.hpp>
 
-class FixedConditions:
+class FileConditions:
 	public InitialConditionner
 {
 	double m_delta_t;

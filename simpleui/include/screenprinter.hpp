@@ -8,6 +8,7 @@ class ScreenPrinter
 {
 public:
 	// see overriden function
-	void simulation_updated( const Distributed2DField& data ) override;
+  void simulation_updated( const Distributed2DField& data ,
+			   const Configuration& config) override;
 	
 };

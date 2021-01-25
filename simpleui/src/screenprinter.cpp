@@ -12,7 +12,8 @@ using std::flush;
 using std::this_thread::sleep_for;
 using std::chrono::milliseconds;
 
-void ScreenPrinter::simulation_updated( const Distributed2DField& data )
+void ScreenPrinter::simulation_updated( const Distributed2DField& data ,
+					const Configuration& config)
 {
 	if ( data.distribution().rank() == 0 ) {
 		cout << "at t="<<data.time()<<" : [" << endl;

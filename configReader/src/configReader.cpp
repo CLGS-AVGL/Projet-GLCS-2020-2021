@@ -41,6 +41,8 @@ void ConfigReader::init_options(po::options_description &options) const
    "config-file name used to initialize the configuration (no default value)")
   ("input-file",        po::value<std::string>(), 
    "input-file name used for initial conditions (no default value)")
+    ("input-dataset",        po::value<std::string>(), 
+   "input-dataset name used for file initial conditions (no default value)")
   ("output-file",       po::value<std::string>(),
    "output-file used to save results (no default value)")
   ("backup-interval",   po::value<int>()->default_value(1),   
@@ -94,6 +96,8 @@ void ConfigReader::set_commmand_line(const po::variables_map &vm, const int rank
 	m_delta_space[DX] =vm["delta-x"].as<double>();
   if (vm.count("input-file")) 
     m_input_filename = vm["input-file"].as<std::string>();
+  if (vm.count("input-dataset")) 
+    m_input_dataset = vm["input-dataset"].as<std::string>();
   if (vm.count("output-file")) 
     m_output_filename = vm["output-file"].as<std::string>();
   m_backup_interval =vm["backup-interval"].as<int>();
@@ -130,7 +134,11 @@ void ConfigReader::set_config_file(const std::string &filename, const int rank)
   boost::optional<std::string> in_opt = tree.get_optional<std::string>("input-file");
   if (in_opt) 
     m_input_filename = (*in_opt);
-  
+
+  boost::optional<std::string> in_dataset_opt = tree.get_optional<std::string>("input-dataset");
+  if(in_dataset_opt)
+    m_input_dataset = (*in_dataset_opt);
+    
   boost::optional<std::string> out_opt = tree.get_optional<std::string>("output-file");
   if (out_opt) 
     m_output_filename = (*out_opt);
@@ -153,6 +161,7 @@ void ConfigReader::print_config(const po::variables_map &vm, const int rank) con
 	  std::cout << "m_delta_space[DY] = "  << m_delta_space[DY]  << std::endl;
 	  std::cout << "m_delta_space[DX] = "  << m_delta_space[DX]  << std::endl;
     if (!m_input_filename.empty())   std::cout << "m_input_filename = "   << m_input_filename   << std::endl;
+    if (!m_input_dataset.empty())   std::cout << "m_input_dataset = "   << m_input_dataset   << std::endl;
     if (!m_output_filename.empty()) std::cout << "m_output_filename = "  << m_output_filename  << std::endl;
     std::cout << "m_backup_interval = "  << m_backup_interval  << std::endl;
     std::cout << "m_mean_backup_interval = "  << m_mean_backup_interval  << std::endl;
@@ -205,9 +214,6 @@ void ConfigReader::check_config(const int rank, const int size) const
   
   if (!m_input_filename.empty() && !exist(m_input_filename.c_str(), &buffer))
     alert("The given input file cannot be found", error_code, rank);
-
-  if (!m_output_filename.empty() && !exist(m_output_filename.c_str(), &buffer))
-    alert("The given output_filename file cannot be found", error_code, rank);
 
   if (error_code != 0){
     MPI_Finalize();

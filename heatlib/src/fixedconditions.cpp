@@ -1,7 +1,8 @@
 // the implemented class (last)
 #include "fixedconditions.hpp"
 
-void FixedConditions::initial_condition( Distributed2DField& data ) const
+void FixedConditions::initial_condition( Distributed2DField& data ,
+					 const Configuration& config) const
 {
 	// initialize everything to 0
 	for ( int yy = 0; yy < data.full_view().extent( DY ); ++yy ) {

@@ -56,4 +56,5 @@ public:
 	 */
 	void unobserve( SimulationObserver& observer ) { m_observers.erase( &observer ); }
 
+  const Configuration& get_config() const { return m_config;}
 };

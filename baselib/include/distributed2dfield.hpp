@@ -29,6 +29,9 @@ private:
 	/// The descriptor of data distribution over MPI
 	CartesianDistribution2D m_distribution;
 
+  /// The global shape of the matrix
+        Shape2D m_global_shape;
+  
 	/// The values
 	std::vector<double> m_data;
 
@@ -196,4 +199,5 @@ public:
 	 */
 	void sync_ghosts();
 
+  Shape2D global_shape() const { return m_global_shape;}
 };

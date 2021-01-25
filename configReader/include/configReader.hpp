@@ -18,8 +18,6 @@
 using std::cerr;
 using std::endl;
 using std::exit;
-using std::stoi;
-using std::stod;
 using std::cout;
 
 namespace po = boost::program_options;
@@ -46,6 +44,9 @@ class ConfigReader:
   /// name of the input file used for inital conditions
   std::string m_input_filename;
 
+  /// name of the input dataset containing initial conditions
+  std::string m_input_dataset;
+  
   /// name of the output file used for backups
   std::string m_output_filename;
 
@@ -127,6 +128,9 @@ public:
   // see overridden function
   std::string input_filename() const override { return m_input_filename; }
 
+  // see overridden function
+  std::string input_dataset() const override {return m_input_dataset; }
+  
   // see overridden function
   std::string output_filename() const override { return m_output_filename; }
   

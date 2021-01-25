@@ -6,7 +6,7 @@ Simulation::Simulation( MPI_Comm comm, const Configuration& config, const TimeSt
 	: m_config( config )
 	, m_time_step( time_step )
 	, m_init( init )
-  , m_reduc( reduc )
+	, m_reduc( reduc )
 	, m_comm( comm )
 {
 }
@@ -20,11 +20,14 @@ void Simulation::run() const
 	Distributed2DField next( m_comm, m_config.dist_extents(), m_config.global_shape(), m_time_step.required_ghosts(), m_config.delta_space() );
 
 	// initialize data at t=0
-	m_init.initial_condition( current );
-	m_init.initial_condition( next );
+	m_init.initial_condition( current,
+				  this->get_config());
+	m_init.initial_condition( next ,
+				  this->get_config());
 
 	for ( auto&& observer : m_observers ) {
-		observer->simulation_updated( current );
+	  observer->simulation_updated( current ,
+					this->get_config());
 	}
 
 	// the main (time) iteration
@@ -36,7 +39,8 @@ void Simulation::run() const
 		m_time_step.iter( current, next );
 
 		for ( auto&& observer : m_observers ) {
-			observer->simulation_updated( next );
+		  observer->simulation_updated( next ,
+						this->get_config());
 		}
 
 		// swap the current and next buffers

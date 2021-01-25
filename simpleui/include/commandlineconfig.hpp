@@ -24,11 +24,17 @@ class CommandLineConfig:
   /// name of the input file used for inital conditions
   std::string m_input_filename;
 
+  /// name of the input dataset containing initial conditions
+  std::string m_input_dataset;
+  
   /// name of the output file used for backups
   std::string m_output_filename;
 
-  /// interval between backups
+  /// interval between full backups
   int m_backup_interval;
+
+  /// interval between mean backups
+  int m_mean_backup_interval; 
 
 public:
 	/** Construct a new CommandLineConfig
@@ -51,13 +57,19 @@ public:
 	
 	// see overridden function
 	std::array<double, 2> delta_space() const override { return m_delta_space; }
-	
+
   // see overridden function
   std::string input_filename() const override { return m_input_filename; }
 
+  // see overridden function
+  std::string input_dataset() const override {return m_input_dataset; }
+  
   // see overridden function
   std::string output_filename() const override { return m_output_filename; }
   
   // see overridden function
   int backup_interval() const override { return m_backup_interval; }
+
+  // see overridden function
+  int mean_backup_interval() const override { return m_mean_backup_interval; }
 };

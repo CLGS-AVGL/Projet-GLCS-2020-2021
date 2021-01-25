@@ -39,6 +39,11 @@ public:
    */
   virtual std::string input_filename() const = 0;
 
+    /** Access the initial conditions input dataset name
+   * @return the initial conditions input dataset name
+   */
+  virtual std::string input_dataset() const = 0;
+  
   /** Access the output filename
    * @return the output filename
    */

@@ -17,6 +17,7 @@ Distributed2DField::Distributed2DField( MPI_Comm comm, Shape2D dist_shape, Shape
 	: m_distribution( comm, dist_shape )
 	, m_data( 0 )
 	, m_delta_space(delta_space)
+	, m_global_shape(global_shape)
   , m_reducedValue(0.0)
 {
 	for ( int ii = 0; ii < m_data.size(); ++ii ) {
