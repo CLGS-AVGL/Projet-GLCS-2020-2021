@@ -6,55 +6,55 @@
 // local headers
 #include "configuration.hpp"
 #include "distributed2dfield.hpp"
+#include "fieldreductor.hpp"
 #include "initialconditionner.hpp"
 #include "simulationobserver.hpp"
 #include "timestep.hpp"
-#include "fieldreductor.hpp"
 
-class Simulation
-{
+class Simulation {
 private:
-	/// The configuration of the simulation
-	const Configuration& m_config;
+  /// The configuration of the simulation
+  const Configuration &m_config;
 
-	/// The time-step operator to apply
-	const TimeStep& m_time_step;
-	
-	/// The initial-conditions to apply
-	const InitialConditionner& m_init;
+  /// The time-step operator to apply
+  const TimeStep &m_time_step;
+
+  /// The initial-conditions to apply
+  const InitialConditionner &m_init;
 
   /// The reductor to apply
-  const FieldReductor& m_reduc;
+  const FieldReductor &m_reduc;
 
-	/// The MPI communicator to use
-	MPI_Comm m_comm;
+  /// The MPI communicator to use
+  MPI_Comm m_comm;
 
-	/// The observers interested to be notified when the simulation state changes
-	std::set<SimulationObserver*> m_observers;
+  /// The observers interested to be notified when the simulation state changes
+  std::set<SimulationObserver *> m_observers;
 
 public:
-	/** Constructs a new simulation
-	 * @param comm the MPI communicator to use
-	 * @param config the configuration of the simulation
-	 * @param time_step the time-step operator to apply
-	 * @param init the initial-conditions to apply
-	 */
-	Simulation( MPI_Comm comm, const Configuration& config, const TimeStep& time_step, 
-      const InitialConditionner& init, const FieldReductor& reduc);
+  /** Constructs a new simulation
+   * @param comm the MPI communicator to use
+   * @param config the configuration of the simulation
+   * @param time_step the time-step operator to apply
+   * @param init the initial-conditions to apply
+   */
+  Simulation(MPI_Comm comm, const Configuration &config,
+             const TimeStep &time_step, const InitialConditionner &init,
+             const FieldReductor &reduc);
 
-	/** Run the simulation for the number of time-steps specified in the config
-	 */
-	void run() const;
+  /** Run the simulation for the number of time-steps specified in the config
+   */
+  void run() const;
 
-	/** Add an observer interested by the simulation
-	 * @param observer the observer to add
-	 */
-	void observe( SimulationObserver& observer ) { m_observers.insert( &observer ); }
+  /** Add an observer interested by the simulation
+   * @param observer the observer to add
+   */
+  void observe(SimulationObserver &observer) { m_observers.insert(&observer); }
 
-	/** Remove an observer no longer interested by the simulation
-	 * @param observer the observer to remove
-	 */
-	void unobserve( SimulationObserver& observer ) { m_observers.erase( &observer ); }
+  /** Remove an observer no longer interested by the simulation
+   * @param observer the observer to remove
+   */
+  void unobserve(SimulationObserver &observer) { m_observers.erase(&observer); }
 
-  const Configuration& get_config() const { return m_config;}
+  const Configuration &get_config() const { return m_config; }
 };
