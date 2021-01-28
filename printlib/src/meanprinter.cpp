@@ -1,9 +1,9 @@
 // headers
 #include "meanprinter.hpp"
-
+// utiliser un gather pour avoir la moyenne des moyennes
+// seul master va ecrire dans un fichier hdf5, pas de property list mpi ici !
 void write_mean(const Distributed2DField &data, const Configuration &config) {
-  double mean_heat = data.reducedValue();
-
+  
   // test MPI_init call
   int init_flag;
   MPI_Initialized(&init_flag);
@@ -15,19 +15,20 @@ void write_mean(const Distributed2DField &data, const Configuration &config) {
   }
 
   // get Communicator infos
+  double mean_heat = 0;
+  double local_mean = data.reducedValue();
   int rank;
   int size;
   MPI_Comm Communicator = data.distribution().communicator();
   rank = data.distribution().rank();
   size = data.distribution().size();
 
-  // property lists for MPI-HDF5 use
-  hid_t plist_id = H5Pcreate(H5P_FILE_ACCESS);
-  H5Pset_fapl_mpio(plist_id, Communicator, MPI_INFO_NULL);
+  MPI_Reduce(&local_mean, &mean_heat, 1, MPI_DOUBLE, MPI_SUM, 0, Communicator);
 
-  hid_t plist_write_id = H5Pcreate(H5P_DATASET_XFER);
-  H5Pset_dxpl_mpio(plist_write_id, H5FD_MPIO_COLLECTIVE);
-
+  if(rank == 0) {
+  // compute the mean of means
+  mean_heat /= size;
+  
   // create a file with an explicit name each time it's necessary
   std::string file_name = std::string("mean_") + config.output_filename();
   hid_t h5file;
@@ -36,11 +37,11 @@ void write_mean(const Distributed2DField &data, const Configuration &config) {
   H5Eset_auto(NULL, NULL, NULL);
 
   // try to open a file, success if it wasnt existant, fail otherwise
-  h5file = H5Fcreate(file_name.c_str(), H5F_ACC_EXCL, H5P_DEFAULT, plist_id);
+  h5file = H5Fcreate(file_name.c_str(), H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT);
 
   // if failed to create, try to open
   if (h5file < 0) {
-    h5file = H5Fopen(file_name.c_str(), H5F_ACC_RDWR, plist_id);
+    h5file = H5Fopen(file_name.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
     if (h5file < 0) {
       std::cerr << "fail to open file. exit(-1)" << std::endl;
       exit(-1);
@@ -51,8 +52,7 @@ void write_mean(const Distributed2DField &data, const Configuration &config) {
   H5Eset_auto(NULL, NULL, NULL);
 
   // the total matrix size to write
-  const hsize_t block[2] = {data.distribution().extents()[DY],
-                            data.distribution().extents()[DX]};
+  const hsize_t block[2] = {1, 1};
 
   const hsize_t block_size[2] = {1, 1};
 
@@ -81,8 +81,8 @@ void write_mean(const Distributed2DField &data, const Configuration &config) {
   hid_t fspace_id = H5Dget_space(dataset_id);
 
   // select hyperslab in file
-  start_w[0] = data.distribution().coord(DY); // how to find the begin-height
-  start_w[1] = data.distribution().coord(DX); // how to find the begin-width
+  start_w[0] = 0;
+  start_w[1] = 0;
   herr_t err_code_slab = H5Sselect_hyperslab(fspace_id, H5S_SELECT_SET, start_w,
                                              stride_w, count_w, block_size);
   // select hyperslab in memory
@@ -94,15 +94,14 @@ void write_mean(const Distributed2DField &data, const Configuration &config) {
 
   herr_t err_code = H5Sselect_hyperslab(mem_space, H5S_SELECT_SET, start,
                                         stride, count, block_size);
-  H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, mem_space, fspace_id, plist_write_id,
+  H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, mem_space, fspace_id, H5P_DEFAULT,
            &mean_heat);
 
   // release
   H5Dclose(dataset_id);
   H5Sclose(dataspace_id);
-  H5Pclose(plist_id);
-  H5Pclose(plist_write_id);
   H5Fclose(h5file);
+  }
 }
 
 void MeanPrinter::simulation_updated(const Distributed2DField &data,
