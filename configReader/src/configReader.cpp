@@ -276,8 +276,6 @@ ConfigReader::ConfigReader(const int argc, const char *const argv[]) {
   MPI_Comm_size(MPI_COMM_WORLD, &size);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  // get a short name for the boost name_space
-
   // create the options description object
   po::options_description options("Options");
 
